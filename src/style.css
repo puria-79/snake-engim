@@ -1,0 +1,10 @@
+#grillia {
+  aspect-ratio: 1;
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+td {
+  padding: 2rem;
+  
+}
