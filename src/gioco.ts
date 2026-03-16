@@ -26,11 +26,11 @@ export class Gioco {
           this.serpente.cambia_verso("v");
           break;
       }
-      this.serpente.render()
+      this.serpente.aggiorna_serpente()
     });
     setInterval(() => {
       this.serpente.muovi()
-      this.serpente.render()
+      this.serpente.aggiorna_serpente()
       this.serpente.aggiorna_coda()
     }, 500);
   }

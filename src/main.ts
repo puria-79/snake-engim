@@ -5,6 +5,6 @@ import './style.css'
 
 const griglia = new Griglia(10, "app");
 const serpente = new Serpente(false, griglia);
-serpente.render()
+serpente.aggiorna_serpente()
 const gioco = new Gioco(serpente, griglia);
 gioco.init()

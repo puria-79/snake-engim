@@ -28,12 +28,12 @@ export class Serpente {
   }
 
   public cambia_verso(verso: Verso) {
-    if ((this.verso == "n" || this.verso == "s") != (verso == "n" || verso == "s")) {
+    if ((this.coda[0].verso == "n" || this.coda[0].verso == "s") != (verso == "n" || verso == "s")) {
       this.verso = verso;
     }
   }
 
-  public aggiuni_coda() {
+  private aggiuni_coda() {
     this.coda_tbd = {...this.coda[this.coda.length - 1]}
   }
 
@@ -53,8 +53,6 @@ export class Serpente {
       this.coda.push(this.coda_tbd)
       this.coda_tbd = undefined;
     }
-    console.log(this.coda[2].posizione)
-    console.log(this.posizione)
   }
 
   public mela() {
@@ -71,7 +69,7 @@ export class Serpente {
     }
   }
 
-  public render() {
+  public aggiorna_serpente() {
     switch (this.verso) {
       case "n":
         this.griglia.griglia[this.posizione.i][this.posizione.j].innerHTML =
