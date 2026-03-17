@@ -4,7 +4,6 @@ import { Serpente } from './serpente';
 import './style.css'
 
 const griglia = new Griglia(10, "app");
-const serpente = new Serpente(false, griglia);
-serpente.aggiorna_serpente()
-const gioco = new Gioco(serpente, griglia);
+export const serpente = new Serpente(false, griglia);
+const gioco = new Gioco(serpente, griglia, 500);
 gioco.init()

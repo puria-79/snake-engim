@@ -8,23 +8,22 @@ interface Posizione {
 }
 
 interface Coda {
-  verso: Verso;
+  verso?: Verso;
   posizione: Posizione;
 }
 
 export class Serpente {
-  private verso: Verso = "o";
-  private posizione: Posizione = { i: 3, j: 4 };
-  public coda: Coda[] = [{verso: "o", posizione: {i: 3, j: 4}}];
+  public verso: Verso = "o";
+  public posizione: Posizione = { i: 3, j: 4 };
+  public coda: Coda[] = [{ verso: this.verso, posizione: { ...this.posizione } }];
   public coda_tbd?: Coda;
-  private griglia: Griglia;
-  public constructor(casuale: Boolean, grillia: Griglia) {
+  public fuori: boolean = false;
+  constructor(casuale: Boolean, private griglia: Griglia) {
     if (casuale) {
       this.verso = Array("n", "s", "v", "s")[
         Math.floor(Math.random() * 4)
       ] as Verso;
     }
-    this.griglia = grillia;
   }
 
   public cambia_verso(verso: Verso) {
@@ -34,17 +33,16 @@ export class Serpente {
   }
 
   private aggiuni_coda() {
-    this.coda_tbd = {...this.coda[this.coda.length - 1]}
+    this.coda_tbd = { ...this.coda[this.coda.length - 1] }
   }
 
   public aggiorna_coda() {
-    let tmp: Coda, tmp1: Coda;
+    let tmp: Coda = { ...this.coda[0] }, tmp1: Coda;
     for (const i in this.coda) {
       if (i == "0") {
-        tmp = {...this.coda[i]}
-        this.coda[i] = {verso: this.verso, posizione: {...this.posizione}}
+        this.coda[i] = { verso: this.verso, posizione: { ...this.posizione } }
       } else {
-        tmp1 = {...this.coda[i]}
+        tmp1 = { ...this.coda[i] }
         this.coda[i] = tmp
         tmp = tmp1
       }
@@ -56,20 +54,48 @@ export class Serpente {
   }
 
   public mela() {
-    let i = Math.floor(Math.random() * this.griglia.dimensione)
-    let j = Math.floor(Math.random() * this.griglia.dimensione)
-    let aggiungibile: boolean = true;
-    for (const element of this.coda) {
-      aggiungibile = aggiungibile && i != element.posizione.i && j != element.posizione.j
-    }
-    if (aggiungibile) {
-      this.griglia.griglia[i][j].innerHTML = "&#127822;"
-    } else {
-      this.mela()
-    }
+    let vuoti: HTMLTableCellElement[][] = [];
+    this.griglia.griglia.forEach((el, i) => vuoti[i] = el.filter(element => element.innerText == ""))
+    const i = Math.floor(Math.random() * vuoti.length)
+    const j = Math.floor(Math.random() * vuoti[i].length)
+    vuoti[i][j].innerHTML = "&#127822;"
   }
 
   public aggiorna_serpente() {
+    if (this.coda[0]) {
+      const verso = `${this.verso}${this.coda[0].verso}`;
+      switch (verso) {
+        case "vn":
+        case "so":
+          this.griglia.griglia[this.coda[0].posizione.i][this.coda[0].posizione.j].innerHTML = "&#9559;";
+          break;
+        case "on":
+        case "sv":
+          this.griglia.griglia[this.coda[0].posizione.i][this.coda[0].posizione.j].innerHTML = "&#9556;";
+          break;
+        case "os":
+        case "nv":
+          this.griglia.griglia[this.coda[0].posizione.i][this.coda[0].posizione.j].innerHTML = "&#9562;";
+          break;
+        case "vs":
+        case "no":
+          this.griglia.griglia[this.coda[0].posizione.i][this.coda[0].posizione.j].innerHTML = "&#9565;";
+          break;
+        case "vv":
+        case "oo":
+          this.griglia.griglia[this.coda[0].posizione.i][this.coda[0].posizione.j].innerHTML = "&#9552;";
+          break;
+        case "nn":
+        case "ss":
+          this.griglia.griglia[this.coda[0].posizione.i][this.coda[0].posizione.j].innerHTML = "&#9553;";
+          break;
+      }
+    }
+    this.griglia.griglia[this.coda[this.coda.length - 1].posizione.i][this.coda[this.coda.length - 1].posizione.j].innerHTML = ""
+    this.controlla_testa()
+  }
+
+  public controlla_testa() {
     switch (this.verso) {
       case "n":
         this.griglia.griglia[this.posizione.i][this.posizione.j].innerHTML =
@@ -94,22 +120,42 @@ export class Serpente {
     switch (this.verso) {
       case "s":
         if (this.posizione.i + 1 < this.griglia.dimensione) {
+          if (this.coda.filter((e) => e.posizione.i == this.posizione.i + 1 && e.posizione.j == this.posizione.j).length != 0) {
+            this.serpente_fuori()
+          }
           this.posizione.i += 1;
+        } else {
+          this.serpente_fuori()
         }
         break;
       case "n":
         if (this.posizione.i - 1 >= 0) {
+          if (this.coda.filter((e) => e.posizione.i == this.posizione.i - 1 && e.posizione.j == this.posizione.j).length != 0) {
+            this.serpente_fuori()
+          }
           this.posizione.i -= 1;
+        } else {
+          this.serpente_fuori()
         }
         break;
       case "o":
         if (this.posizione.j + 1 < this.griglia.dimensione) {
+          if (this.coda.filter((e) => e.posizione.i == this.posizione.i && e.posizione.j == this.posizione.j + 1).length != 0) {
+            this.serpente_fuori()
+          }
           this.posizione.j += 1;
+        } else {
+          this.serpente_fuori()
         }
         break;
       case "v":
         if (this.posizione.j - 1 >= 0) {
+          if (this.coda.filter((e) => e.posizione.i == this.posizione.i && e.posizione.j == this.posizione.j - 1).length != 0) {
+            this.serpente_fuori()
+          }
           this.posizione.j -= 1;
+        } else {
+          this.serpente_fuori()
         }
         break;
     }
@@ -118,4 +164,9 @@ export class Serpente {
       this.mela()
     }
   }
+
+  private serpente_fuori() {
+    this.fuori = true;
+  }
 }
+
